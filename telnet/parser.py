@@ -1,11 +1,36 @@
 import re
 
 SELF_CLOSING_TAGS = [
-    "area", "base", "br", "col", "embed", "hr", "img", "input",
-    "link", "meta", "param", "source", "track", "wbr",
+    "area",
+    "base",
+    "br",
+    "col",
+    "embed",
+    "hr",
+    "img",
+    "input",
+    "link",
+    "meta",
+    "param",
+    "source",
+    "track",
+    "wbr",
 ]
 
+
 class HTMLParser:
+    HEAD_TAGS = [
+        "base",
+        "basefont",
+        "bgsound",
+        "noscript",
+        "link",
+        "meta",
+        "title",
+        "style",
+        "script",
+    ]
+
     def __init__(self, body):
         self.body = body
         self.unfinished = []
@@ -31,14 +56,18 @@ class HTMLParser:
         return self.finish()
 
     def add_text(self, text):
-        if text.isspace(): return
+        if text.isspace():
+            return
+        self.implicit_tags(None)
         parent = self.unfinished[-1]
         node = Text(text, parent)
         parent.children.append(node)
 
     def add_tag(self, tag):
         tag, attributes = self.get_attributes(tag)
-        if tag.startswith("!"): return
+        if tag.startswith("!"):
+            return
+        self.implicit_tags(tag)
         if tag.startswith("/"):
             if len(self.unfinished) == 1:
                 return
@@ -61,14 +90,31 @@ class HTMLParser:
         for attr in parts[1:]:
             if "=" in attr:
                 key, value = attr.split("=", 1)
-                if len(value) > 2 and value[0] in ["'", "\""]:
+                if len(value) > 2 and value[0] in ["'", '"']:
                     value = value[1:-1]
                 attributes[key.casefold()] = value
             else:
                 attributes[attr.casefold()] = ""
         return tag, attributes
 
+    def implicit_tags(self, tag):
+        while True:
+            open_tags = [node.tag for node in self.unfinished]
+            if open_tags == [] and tag != "html":
+                self.add_tag("html")
+            elif open_tags == ["html"] and tag not in ["head", "body", "/html"]:
+                if tag in self.HEAD_TAGS:
+                    self.add_tag("head")
+                else:
+                    self.add_tag("body")
+            elif open_tags == ["html", "head"] and \
+                    tag not in ["/head"] + self.HEAD_TAGS
+                    self.add_tag("/head")
+            else: break
+
     def finish(self):
+        if not self.unfinished:
+            self.implicit_tags(None)
         while len(self.unfinished) > 1:
             node = self.unfinished.pop()
             parent = self.unfinished[-1]
@@ -79,7 +125,7 @@ class HTMLParser:
 def print_tree(node, indent=0):
     print(" " * indent, node)
     for child in node.children:
-        print_tree(child, indent +  2)
+        print_tree(child, indent + 2)
 
 
 class Text:
@@ -101,45 +147,3 @@ class Element:
 
     def __repr__(self):
         return "<" + self.tag + ">"
-
-
-class Tag:
-    def __init__(self, tag):
-        self.tag = tag
-
-
-class NewLine:
-    def __init__(self):
-        pass
-
-
-def lex(body):
-    out = []
-    buffer = ""
-    in_tag = False
-    for c in body:
-        if c == "<":
-            in_tag = True
-            if buffer:
-                out.append(Text(buffer))
-            buffer = ""
-        elif c == ">":
-            in_tag = False
-            out.append(Tag(buffer))
-            buffer = ""
-        # elif c == "\n":
-        #     if buffer and not in_tag: out.append(Text(buffer))
-        #     out.append(NewLine())
-        #     buffer = ""
-        else:
-            buffer += c
-    # text = parse_entities(text)
-    if not in_tag and buffer:
-        out.append(Text(buffer))
-    return out
-
-
-def parse_entities(text):
-    text = re.sub("&lt;", "<", text)
-    text = re.sub("&gt;", ">", text)
-    return text

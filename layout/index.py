@@ -1,4 +1,4 @@
-from telnet.parser import Text, Tag, NewLine
+from telnet.parser import Text
 import tkinter.font
 
 HSTEP, VSTEP = 13, 18
@@ -64,8 +64,6 @@ class Layout:
         if isinstance(tok, Text):
             for word in tok.text.split():
                 self.word(word)
-        elif isinstance(tok, NewLine):
-            pass
 
     def word(self, word):
         font = get_font(self.size, self.weight, self.style) 
