@@ -1,5 +1,5 @@
 from layout.index import Layout
-from telnet.parser import lex, Text, Tag
+from telnet.parser import HTMLParser, Text, Tag
 import tkinter
 import tkinter.font
 
@@ -19,8 +19,8 @@ class Browser:
 
     def load(self, url):
         body = url.request()
-        tokens = lex(body)
-        self.display_list = Layout(tokens).display_list
+        self.nodes = HTMLParser(body).parse()
+        self.display_list = Layout(self.nodes).display_list
         self.draw()
 
     def draw(self):
