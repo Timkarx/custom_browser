@@ -17,6 +17,24 @@ SELF_CLOSING_TAGS = [
     "wbr",
 ]
 
+class Text:
+    def __init__(self, text, parent):
+        self.text = text
+        self.children = []
+        self.parent = parent
+
+    def __repr__(self):
+        return repr(self.text)
+
+class Element:
+    def __init__(self, tag, attributes, parent):
+        self.tag = tag
+        self.children = []
+        self.attributes = attributes
+        self.parent = parent
+
+    def __repr__(self):
+        return "<" + self.tag + ">"
 
 class HTMLParser:
     HEAD_TAGS = [
@@ -31,11 +49,11 @@ class HTMLParser:
         "script",
     ]
 
-    def __init__(self, body):
+    def __init__(self, body: str):
         self.body = body
         self.unfinished = []
 
-    def parse(self):
+    def parse(self) -> Element:
         text = ""
         in_tag = False
         for c in self.body:
@@ -108,11 +126,11 @@ class HTMLParser:
                 else:
                     self.add_tag("body")
             elif open_tags == ["html", "head"] and \
-                    tag not in ["/head"] + self.HEAD_TAGS
-                    self.add_tag("/head")
+                    tag not in ["/head"] + self.HEAD_TAGS:
+                        self.add_tag("/head")
             else: break
 
-    def finish(self):
+    def finish(self) -> Element:
         if not self.unfinished:
             self.implicit_tags(None)
         while len(self.unfinished) > 1:
@@ -126,24 +144,3 @@ def print_tree(node, indent=0):
     print(" " * indent, node)
     for child in node.children:
         print_tree(child, indent + 2)
-
-
-class Text:
-    def __init__(self, text, parent):
-        self.text = text
-        self.children = []
-        self.parent = parent
-
-    def __repr__(self):
-        return repr(self.text)
-
-
-class Element:
-    def __init__(self, tag, attributes, parent):
-        self.tag = tag
-        self.children = []
-        self.attributes = attributes
-        self.parent = parent
-
-    def __repr__(self):
-        return "<" + self.tag + ">"

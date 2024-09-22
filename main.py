@@ -1,5 +1,6 @@
 from telnet.index import URL
-from gui.index import Browser
+from core import Browser
+
 import tkinter
 
 if __name__ == "__main__":
