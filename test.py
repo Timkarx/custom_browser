@@ -1,7 +1,5 @@
 from telnet.index import URL
-from telnet.parser import HTMLParser, print_tree
-from gui.index import Browser
-import tkinter
+from parser.html.core import HTMLParser, print_tree
 
 if __name__ == "__main__":
     import sys
