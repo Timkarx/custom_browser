@@ -9,6 +9,7 @@ class Rect:
         return x >= self.left and x < self.right \
                 and y < self.bottom and y >= self.top
 
+
 class DrawText:
     def __init__(self, rect: Rect, text, font, color):
         self.top, self.bottom = rect.top, rect.bottom
@@ -17,7 +18,7 @@ class DrawText:
         self.font = font
         self.color = color
 
-        self.bottom = self.top  + font.metrics("linespace")
+        self.bottom = self.top + font.metrics("linespace")
 
     def execute(self, scroll, canvas):
         canvas.create_text(

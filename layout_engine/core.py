@@ -2,6 +2,8 @@ from layout_engine.draw_cmds import DrawText, DrawRect, Rect
 from parser.html.core import Text, Element
 import tkinter.font
 
+type Layout = DocumentLayout | BlockLayout
+
 HSTEP, VSTEP = 13, 18
 WIDTH, HEIGHT = 800, 600
 SCROLL_STEP = 100
@@ -49,6 +51,7 @@ BLOCK_ELEMENTS = [
 ]
 
 
+# Layout engine - calculate layout coordinates and paint (through tkinter)
 class DocumentLayout:
     def __init__(self, node: Element):
         self.node = node
@@ -226,6 +229,7 @@ class LineLayout:
     def paint(self):
         return []
 
+
 class TextLayout:
     def __init__(self, node, word, parent, previous):
         self.node = node
@@ -260,7 +264,8 @@ class TextLayout:
         color = self.node.style["color"]
         return [DrawText(self.rect(), self.word, self.font, color)]
 
-def paint_tree(layout_object, display_list):
+
+def paint_tree(layout_object: Layout, display_list) -> None:
     display_list.extend(layout_object.paint())
 
     for child in layout_object.children:

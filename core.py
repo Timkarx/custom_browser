@@ -1,7 +1,7 @@
 from telnet.index import URL
 from chrome.core import Chrome
 from layout_engine.draw_cmds import Rect, DrawText, DrawOutline, DrawLine, DrawRect
-from layout_engine.core import DocumentLayout, paint_tree, get_font
+from layout_engine.core import DocumentLayout, paint_tree
 from parser.html.core import HTMLParser, Text, Element, print_tree
 from parser.css.core import CSSParser, style, cascade_priority
 
@@ -102,6 +102,7 @@ class Tab:
         # Layout and rendering
         self.document = DocumentLayout(self.entryNode)
         self.document.layout()
+        # Mutate the Tabs display_list then draw
         self.display_list = []
         paint_tree(self.document, self.display_list)
 
